@@ -18,8 +18,17 @@
   height: 100vh;
   user-select: none;
 }
-::-webkit-scrollbar{
-  display: none;
-}
 
+::-webkit-scrollbar{
+  width: 5px;
+  height: 5px;
+}
+//指示器颜色
+::-webkit-scrollbar-thumb{
+  background-color: #1296db;
+}
+//轨迹颜色
+::-webkit-scrollbar-track{
+  background-color: #ddd;
+}
 </style>

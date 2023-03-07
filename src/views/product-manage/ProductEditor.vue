@@ -1,9 +1,9 @@
 <template>
     <el-card>
         <template #header>
-            <el-page-header icon="" title="产品管理">
+            <el-page-header @Back="router.back()" title="产品管理">
                 <template #content>
-                    <span class="text-large font-600 mr-3">添加产品</span>
+                    <span class="text-large font-600 mr-3">编辑产品</span>
                 </template>
             </el-page-header>
         </template>
@@ -24,7 +24,7 @@
 
             <el-form-item>
                 <el-button @click="onSubmitUser" type="primary" class="user-form-submit">
-                    添加产品
+                    更新产品
                 </el-button>
             </el-form-item>
         </el-form>
@@ -33,13 +33,13 @@
 
 <script setup lang="ts">
 import { ElMessage, type FormInstance } from 'element-plus';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import UploadVue from '@/components/upload/Upload.vue'
 import { useUploadImage } from '@/components/upload/uploadImage'
-import { createProduct ,type Product} from '@/api'
-import { useRouter } from 'vue-router';
+import { createProduct ,getProductById,updateProduct,type Product} from '@/api'
+import { useRoute, useRouter } from 'vue-router';
 
-
+const route=useRoute()
 const { onUpload, getUploadedImageUrl } = useUploadImage()
 
 const userForm = reactive<Pick<Product,'cover'|'description'|'detail'|'title'>>({
@@ -48,6 +48,12 @@ const userForm = reactive<Pick<Product,'cover'|'description'|'detail'|'title'>>(
     detail:'',
     title:''
 })
+
+onMounted(async ()=>{
+    const res=await getProductById(+route.params.id)
+    Object.assign(userForm,res.data)
+})
+
 const userFormRef = ref<FormInstance>()
 const rules = {
     title: [
@@ -69,7 +75,7 @@ const onSubmitUser = () => {
     userFormRef.value?.validate(async (isValid) => {
         if (isValid) {
             userForm.cover = (await getUploadedImageUrl())!
-            const res = await createProduct(userForm)
+            const res = await updateProduct(+route.params.id,userForm)
             if (res.success) {
                 //重置表单
                 userFormRef.value?.resetFields()

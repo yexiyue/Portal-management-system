@@ -1,6 +1,6 @@
 <template>
-    <el-aside width="200px">
-        <el-menu default-active="1" class="el-menu-vertical-demo">
+    <el-aside style="transition: 0.5s;" :width="store.isCollapse ? '64px' : '205px'">
+        <el-menu :default-active="route.fullPath" router :collapse="store.isCollapse" class="el-menu-vertical-demo">
             <el-menu-item index="/index">
                 <el-icon>
                     <Home></Home>
@@ -15,7 +15,7 @@
                 <span>个人中心</span>
             </el-menu-item>
 
-            <el-sub-menu index="/user-manage">
+            <el-sub-menu index="/user-manage" v-admin >
                 <template #title>
                     <el-icon>
                         <UserManage></UserManage>
@@ -47,23 +47,61 @@
                 <el-menu-item index="/product-manage/addProduct">添加产品</el-menu-item>
                 <el-menu-item index="/product-manage/productList">产品列表</el-menu-item>
             </el-sub-menu>
-
-            <el-menu-item index="/center">
-                <el-icon>
-                    <DataCenter></DataCenter>
-                </el-icon>
-                <span>数据中心</span>
-            </el-menu-item>
+            <el-sub-menu index="/performance">
+                <template #title>
+                    <el-icon>
+                        <DataCenter></DataCenter>
+                    </el-icon>
+                    <span>数据中心</span>
+                </template>
+                <el-menu-item index="/performance/pageView">用户浏览</el-menu-item>
+                <el-menu-item index="/performance/jsError">页面性能</el-menu-item>
+            </el-sub-menu>
         </el-menu>
     </el-aside>
 </template>
 
 <script setup lang="ts">
 
+/**
+ * 1.折叠功能
+ * 2.菜单跳转
+ *   - 设置菜单router为true 把菜单的index当作path跳转
+ * 3.默认高亮
+ * 4.优化滚动条
+ *    - App.vue 中设置滚动条样式
+ */
+import type {Directive, ObjectDirective} from 'vue'
+import { useRoute } from 'vue-router';
+import { useIndexStore } from '../../stores/store'
+const store = useIndexStore()
+const route = useRoute()
+//不需要这么麻烦
+/* const currentIndex=ref(localStorage.getItem('currentIndex') ?? '/index')
+const onSelect=(e:string)=>{
+    currentIndex.value=e
+    localStorage.setItem('currentIndex',currentIndex.value)
+} */
+
+//直接通过route拿到当前的fullPath
+
+const vAdmin:ObjectDirective={
+    mounted(el:HTMLElement){
+        if(store.user.role!==1){
+            el.parentNode?.removeChild(el)
+        }
+    }
+}
 </script>
 
 <style scoped>
-.el-aside {
+
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 200px;
+}
+
+.el-aside{
     height: 100vh;
+    overflow: auto;
 }
 </style>

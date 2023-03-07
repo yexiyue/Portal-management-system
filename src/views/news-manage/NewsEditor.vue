@@ -1,9 +1,9 @@
 <template>
     <el-card>
         <template #header>
-            <el-page-header icon="" title="新闻管理">
+            <el-page-header @back="router.back()"  title="新闻管理">
                 <template #content>
-                    <span class="text-large font-600 mr-3">添加新闻</span>
+                    <span class="text-large font-600 mr-3">新闻编辑</span>
                 </template>
             </el-page-header>
         </template>
@@ -26,7 +26,7 @@
                 <UploadVue v-model:image-src="newsForm.cover" @upload="onUpload"></UploadVue>
             </el-form-item>
             <el-form-item >
-                <el-button style="margin: 0 auto;width:150px;" type="primary" @click="onHandleAddNews" >添加新闻</el-button>
+                <el-button style="margin: 0 auto;width:150px;" type="primary" @click="onHandleAddNews" >更新新闻</el-button>
             </el-form-item>
         </el-form>
     </el-card>
@@ -34,21 +34,26 @@
 
 <script setup lang="ts">
 import { ElMessage, type FormInstance } from 'element-plus';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import UploadVue from '@/components/upload/Upload.vue'
 import { useUploadImage } from '@/components/upload/uploadImage'
 import Editor from '@/components/editor/Editor.vue'
-import { useRouter } from 'vue-router';
-import { createNews } from '@/api';
+import { useRoute, useRouter } from 'vue-router';
+import { getNewsById, updateNews } from '@/api';
 import { useIndexStore } from '@/stores/store';
 const { onUpload, getUploadedImageUrl } = useUploadImage()
 const store=useIndexStore()
+const route=useRoute()
 const newsForm = reactive({
     title: '',
     content: '',
     category: 1,//1 最新动态 2典型案例 3通知公告
     cover: '',
-    userId:store.user.id
+})
+
+onMounted(async ()=>{
+    const res=await getNewsById(+route.params.id)
+    Object.assign(newsForm,res.data,{User:undefined})
 })
 const newsFormRef = ref<FormInstance>()
 
@@ -74,12 +79,12 @@ const onHandleAddNews = () => {
     newsFormRef.value?.validate(async (isValid) => {
         if (isValid) {
             newsForm.cover = (await getUploadedImageUrl())!
-            const res = await createNews(newsForm)
+            const res = await updateNews(+route.params.id,newsForm)
             if (res.success) {
                 //重置表单
                 newsFormRef.value?.resetFields()
 
-                ElMessage.success('添加新闻成功')
+                ElMessage.success('更新新闻成功')
                 router.push('/news-manage/newsList')
             }
         }

@@ -5,9 +5,12 @@ import UserAddVue from "../views/user-manage/UserAdd.vue"
 import UserListVue from "../views/user-manage/UserList.vue"
 import NewsAddVue from "../views/news-manage/NewsAdd.vue"
 import NewsListVue from "../views/news-manage/NewsList.vue"
+import NewsEditorVue from "../views/news-manage/NewsEditor.vue"
 import ProductAddVue from "../views/product-manage/ProductAdd.vue"
 import ProductListVue from "../views/product-manage/ProductList.vue"
-import PerformanceVue from "@/views/performance/Data.vue"
+import ProductEditorVue from "../views/product-manage/ProductEditor.vue"
+import JSErrorVue from '@/views/performance/PagePerformance.vue'
+import PageViewVue from '@/views/performance/PageView.vue'
 import NotFoundVue from "@/views/notfound/NotFound.vue";
 //做一个列表，方便动态添加路由
 export const routesConfig:RouteRecordRaw[]=[
@@ -21,11 +24,17 @@ export const routesConfig:RouteRecordRaw[]=[
     },
     {
         path:'/user-manage/addUser',
-        component:UserAddVue
+        component:UserAddVue,
+        meta:{
+            requiredAuth:true
+        }
     },
     {
         path:'/user-manage/userList',
-        component:UserListVue
+        component:UserListVue,
+        meta:{
+            requiredAuth:true
+        }
     },
     {
         path:'/news-manage/addNews',
@@ -36,6 +45,10 @@ export const routesConfig:RouteRecordRaw[]=[
         component:NewsListVue
     },
     {
+        path:'/news-manage/newsEditor/:id',
+        component:NewsEditorVue
+    },
+    {
         path:'/product-manage/addProduct',
         component:ProductAddVue
     },
@@ -44,8 +57,16 @@ export const routesConfig:RouteRecordRaw[]=[
         component:ProductListVue
     },
     {
-        path:'/performance',
-        component:PerformanceVue
+        path:'/product-manage/productEditor/:id',
+        component:ProductEditorVue
+    },
+    {
+        path:'/performance/pageView',
+        component:PageViewVue
+    },
+    {
+        path:'/performance/jsError',
+        component:JSErrorVue
     },
     {
         path:'/',

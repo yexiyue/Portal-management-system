@@ -3,6 +3,7 @@ import { routesConfig } from "./config";
 import {
   createRouter,
   createWebHashHistory,
+  type RouteRecordRaw,
 } from "vue-router";
 import LoginVue from "../views/Login.vue";
 import MainBoxVue from "../views/MainBox.vue";
@@ -33,7 +34,6 @@ const store = useIndexStore(pinia);
 
 //路由拦截
 router.beforeEach((to, from, next) => {
-
   if (to.name === "login") {
     next();
   } else {
@@ -47,6 +47,16 @@ router.beforeEach((to, from, next) => {
     } else {
       //只配置一遍就可以了
       if (!store.isGetterRouter) {
+        //先删除所有的嵌套路由
+        router.removeRoute(MainBox);
+        //重新添加路由
+        if (!router.hasRoute(MainBox)) {
+          router.addRoute({
+            path: "/mainBox",
+            name: MainBox,
+            component: MainBoxVue,
+          });
+        }
         configRouter();
         //不能直接使用next()，因为路径刚刚添加好，得重新再走一遍
         next({
@@ -61,10 +71,18 @@ router.beforeEach((to, from, next) => {
 
 function configRouter() {
   routesConfig.forEach((item) => {
-    router.addRoute(MainBox, item);
+    checkPermission(item) && router.addRoute(MainBox, item);
   });
   //改变第一次，让其只配置一遍
   store.isGetterRouter = true;
 }
 
+//判断元数据是否需要验证角色
+function checkPermission(item: RouteRecordRaw) {
+  if (item.meta?.requiredAuth) {
+    //如果为管理员就添加，不是就不添加
+    return store.user.role === 1;
+  }
+  return true;
+}
 export default router;
